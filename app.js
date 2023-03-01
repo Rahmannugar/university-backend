@@ -78,11 +78,18 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) {
-    res.send({ error: "User doesn't exist" });
-  }
-  if (await bcrypt.compare(password, user.password)) {
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.json({ error: "User doesn't exist" });
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+      return res.json({ error: "Invalid password" });
+    }
+
     const token = jwt.sign(
       {
         firstname: user.firstName,
@@ -93,37 +100,28 @@ app.post("/login", async (req, res) => {
       { expiresIn: "30m" }
     );
 
-    if (res.status(201)) {
-      return res.json({ status: "Logged in successfully", data: token });
-    } else {
-      return res.json({ error: "error" });
-    }
+    return res.json({ status: "Logged in successfully", data: token });
+  } catch (err) {
+    return res.status(500).json({ error: "Internal server error" });
   }
-  res.json({ status: "error", error: "Invalid password" });
 });
 
 //user routes
 app.post("/user", async (req, res) => {
   const { token } = req.body;
   try {
-    const user = jwt.verify(token, jwt_key, (err, res) => {
-      if (err) {
-        return "Token expired";
-      }
-      return res;
-    });
-    if (user == "Token expired") {
-      res.send({ status: "error", data: "Token expired" });
-    }
+    const user = jwt.verify(token, jwt_key);
+
     const userEmail = user.email;
-    User.findOne({ email: userEmail })
-      .then((data) => {
-        res.send({ status: "ok", data: data });
-      })
-      .catch((error) => {
-        res.send({ status: "error", data: error });
-      });
-  } catch (error) {}
+    const data = await User.findOne({ email: userEmail });
+    res.send({ status: "ok", data: data });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      res.status(401).send({ status: "error", data: "Token expired" });
+    } else {
+      res.status(500).send({ status: "error", data: error });
+    }
+  }
 });
 
 //payments
