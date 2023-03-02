@@ -242,6 +242,11 @@ app.post("/reset-password", async (req, res) => {
   }
 });
 
+//Getting port data
+app.get("/", (req, res) => {
+  res.send("University-backend");
+});
+
 //Port listener
 app.listen(port, () => {
   console.log(`Server started from ${port}`);
