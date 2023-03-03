@@ -2,12 +2,9 @@
   "name": "university-backend",
   "version": "1.0.0",
   "description": "Republican-university backend",
-  "main": "index.js",
-  "engines": {
-    "node": "14.x"
-  },
+  "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nugar",

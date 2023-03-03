@@ -27,9 +27,9 @@ mongoose
     console.log(`Connection failed: ${err.message}`);
   });
 
-require("./users");
-require("./userImages");
-require("./UserPayments");
+require("./schema-models/users");
+require("./schema-models/userImages");
+require("./schema-models/UserPayments");
 const User = mongoose.model("UserInfo");
 const UserImage = mongoose.model("UserImage");
 const UserPayment = mongoose.model("UserPayment");
