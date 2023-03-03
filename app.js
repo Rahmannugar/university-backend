@@ -244,7 +244,7 @@ app.post("/reset-password", async (req, res) => {
 
 //Getting port data
 app.get("/", (req, res) => {
-  res.send("University-backend");
+  res.send("This is my university backend");
 });
 
 //Port listener
