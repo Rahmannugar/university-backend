@@ -4,15 +4,21 @@ const app = express();
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
+const axios = require("axios");
+const bodyParser = require("body-parser");
+const CircularJSON = require("circular-json");
 const jwt = require("jsonwebtoken");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //env links
 const port = process.env.PORT;
 const url = process.env.MONGODBURL;
 const jwt_key = process.env.SECRET_KEY;
+const api_key = process.env.API_KEY;
 
 //coonecting mongodb
 mongoose
@@ -33,6 +39,24 @@ require("./schema-models/UserPayments");
 const User = mongoose.model("UserInfo");
 const UserImage = mongoose.model("UserImage");
 const UserPayment = mongoose.model("UserPayment");
+
+//fetch news data
+const newsData = ["education", "business", "university", "nigeria", "sports"];
+const news = Math.floor(Math.random() * newsData.length);
+
+app.get("/news", (req, res) => {
+  axios
+    .get(
+      `https://newsapi.org/v2/everything?q=${newsData[news]}&apikey=${api_key}`
+    )
+    .then((data) => {
+      res.send(CircularJSON.stringify(data.data));
+    })
+    .catch((error) => {
+      console.log(error.message);
+    });
+});
+
 //signup routes
 app.post("/signup", async (req, res) => {
   const {
